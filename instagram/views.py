@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, action
 from rest_framework import generics
@@ -28,7 +29,7 @@ public_post_list = PublicPostListAPIView.as_view()
 
 '''
 @api_view(['GET'])
-def public_post_list(request):
+def public_post_list(request, format=None):
     qs = Post.objects.filter(is_public=True)
     serializers = PostSerializer(qs, many=True)
     return Response(serializers.data)
@@ -72,3 +73,16 @@ def post_detail(request):
     # request.method #=> 3개 분기
     pass
 '''
+
+
+class PostDetailAPIView(generics.RetrieveAPIView):
+    queryset = Post.objects.all()
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'instagram/post_detail.html'
+    
+    def get(self, request, *args, **kwargs):
+        post = self.get_object()
+        # PostSerializer(post).data
+        return Response({
+            'post': post,
+        })
