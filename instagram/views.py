@@ -2,12 +2,14 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import api_view, action, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import generics
 from rest_framework.response import Response
 from .serializers import PostSerializer
 from .models import Post
 from instagram import serializers
+from .permissions import IsAuthorOrReadonly
 
 
 '''
@@ -29,6 +31,7 @@ public_post_list = PublicPostListAPIView.as_view()
 
 '''
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def public_post_list(request, format=None):
     qs = Post.objects.filter(is_public=True)
     serializers = PostSerializer(qs, many=True)
@@ -39,9 +42,9 @@ def public_post_list(request, format=None):
 class PostViewSet(ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated, IsAuthorOrReadonly] # 해당 viewset을 접근하기 위해서는 login 해야됨.
 
     def perform_create(self, serializer):
-        #FIXME: 인증이 되어있다는 가정하에, author를 지정
         author = self.request.user # User 모델 인스턴스 or AnonymousUser 파이썬 클래스
         ip = self.request.META['REMOTE_ADDR']
         serializer.save(author=author, ip=ip)
