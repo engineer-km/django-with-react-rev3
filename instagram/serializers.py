@@ -25,5 +25,6 @@ class PostSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'is_public',
+            'ip',   # model 의 필드에 옵션을 editable=False 으로 설정하면 입력하지 못하고 읽기만 가능 
         ]
 
