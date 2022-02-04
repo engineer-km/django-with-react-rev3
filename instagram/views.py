@@ -4,6 +4,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import generics
 from rest_framework.response import Response
 from .serializers import PostSerializer
@@ -43,6 +44,10 @@ class PostViewSet(ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated, IsAuthorOrReadonly] # 해당 viewset을 접근하기 위해서는 login 해야됨.
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['message']
+    ordering_fields = ['id']  # 저렬을 허용할 필드의 화이트 리스트. 미지정시에 serializer_class에 지정된 필드들. 
+    ordering = ['id']  # 디포트 정렬 지정
 
     def perform_create(self, serializer):
         author = self.request.user # User 모델 인스턴스 or AnonymousUser 파이썬 클래스
