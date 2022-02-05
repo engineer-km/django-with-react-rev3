@@ -1,3 +1,4 @@
 django~=3.2
 djangorestframework
 httpie
+djangorestframework-jwt~=1.11.0
